@@ -1,0 +1,37 @@
+# Lint and build on every push and PR; nothing is published.
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["CloudronVersions.json", "**.md"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint
+        run: |
+          python3 -m json.tool CloudronManifest.json > /dev/null
+          shellcheck -x -s bash -S warning start.sh pkg/*.sh pkg/drush
+          # The changelog must carry the manifest's version before it is tagged.
+          python3 - <<'PY'
+          import json, re, sys
+          v = json.load(open("CloudronManifest.json"))["version"]
+          if not re.search(rf"^\[{re.escape(v)}\]", open("CHANGELOG").read(), re.M):
+              sys.exit(f"CHANGELOG has no [{v}] section")
+          PY
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

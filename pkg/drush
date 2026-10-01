@@ -1,0 +1,9 @@
+#!/bin/bash
+# drush with the app's environment, as www-data. On PATH as /usr/local/bin/drush,
+# so `cloudron exec -- drush uli` just works.
+source /app/pkg/env.sh
+cd /app || exit 1
+if [[ "$(id -u)" == 0 ]]; then
+    exec gosu www-data:www-data /app/vendor/bin/drush "$@"
+fi
+exec /app/vendor/bin/drush "$@"
