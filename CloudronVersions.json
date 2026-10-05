@@ -1,0 +1,74 @@
+{
+  "stable": true,
+  "versions": {
+    "0.1.0": {
+      "manifest": {
+        "id": "app.openkb.cloudronapp",
+        "title": "OpenKB",
+        "tagline": "Open knowledge base on Drupal and Nuxt, with live collaboration and AI search",
+        "description": "OpenKB is an open-source knowledge base: a Drupal 11 backend with a decoupled\nNuxt frontend, real-time collaborative editing (Hocuspocus/Yjs), spaces with\npage trees, and an optional AI chat with semantic search over your content.\n\nThis package runs the complete upstream stack in one app: the Nuxt frontend\non the main domain, Drupal on a second domain, MySQL from Cloudron, and a\nbundled single-node OpenSearch for search and vector retrieval.",
+        "changelog": "* Initial package of OpenKB 1.0.0-beta2",
+        "postInstallMessage": "The first start installs the Drupal site in the background, which takes a few\nminutes. Until it is done, both domains show a \"setting up\" page.\n\n* **Site:** $CLOUDRON-APP-ORIGIN\n* **Admin:** the Drupal domain you chose, at `/user/login`, user `admin`\n\nThe admin password was generated on first start:\n\n```\ncloudron exec --app $CLOUDRON-APP-FQDN -- grep ADMIN_PASSWORD /app/data/.secrets.env\n```\n\nAI chat and semantic search need `OPENAI_API_KEY` in `/app/data/env.sh`.",
+        "version": "0.1.0",
+        "upstreamVersion": "1.0.0-beta2",
+        "website": "https://github.com/openkb-app/openkb",
+        "packagerName": "ACOLONO GmbH",
+        "packagerUrl": "https://www.acolono.com",
+        "iconUrl": "https://raw.githubusercontent.com/openkb-app/openkb/1.x/frontend/public/okb-app-icon-512.png",
+        "mediaLinks": [
+          "https://raw.githubusercontent.com/openkb-app/openkb/1.x/recipes/install-content/content/file/first-page-editor.png"
+        ],
+        "manifestVersion": 2,
+        "minBoxVersion": "9.1.0",
+        "tags": [
+          "wiki",
+          "notes",
+          "collaboration"
+        ],
+        "httpPort": 3000,
+        "healthCheckPath": "/api/collab/health",
+        "httpPorts": {
+          "ADMIN_DOMAIN": {
+            "title": "Drupal (admin & API) domain",
+            "description": "Drupal backend: admin UI, content API, OAuth, files. Must share a parent domain with the main domain, because the session cookie is scoped to it.",
+            "containerPort": 8080,
+            "defaultValue": "openkb-admin"
+          }
+        },
+        "memoryLimit": 4294967296,
+        "addons": {
+          "localstorage": {
+            "sqlite": {
+              "paths": [
+                "/app/data/collab/hocuspocus.sqlite"
+              ]
+            }
+          },
+          "mysql": {},
+          "sendmail": {},
+          "scheduler": {
+            "drupal_cron": {
+              "schedule": "*/5 * * * *",
+              "command": "/app/pkg/cron.sh"
+            }
+          }
+        },
+        "persistentDirs": [
+          "/var/lib/opensearch"
+        ],
+        "checklist": {
+          "admin-login": {
+            "message": "Sign in on the **Drupal domain** at `/user/login` as `admin`. The password is in `/app/data/.secrets.env` (`cloudron exec -- grep ADMIN_PASSWORD /app/data/.secrets.env`), or get a one-time link with `cloudron exec -- drush uli`."
+          },
+          "ai-key": {
+            "message": "AI chat and semantic search stay off until `OPENAI_API_KEY` is set in `/app/data/env.sh`. Restart the app afterwards, then run `cloudron exec -- drush search-api:reset-tracker kb_chunks -y`."
+          }
+        },
+        "dockerImage": "ghcr.io/acolono/openkb-cloudron:0.1.0"
+      },
+      "creationDate": "Mon, 05 Oct 2026 12:06:39 GMT",
+      "ts": "Mon, 05 Oct 2026 12:06:39 GMT",
+      "publishState": "published"
+    }
+  }
+}
