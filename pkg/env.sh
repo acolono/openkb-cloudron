@@ -3,6 +3,8 @@
 # (upstream .env.example and docker-compose.yml). Sourced by start.sh, boot.sh,
 # cron.sh and the drush wrapper, so it is re-read on every start and every cron
 # run: Cloudron may change addon credentials between restarts.
+#
+# shellcheck disable=SC2034 # exported (set -a) for the processes started by the callers above, not read in this file
 
 # The longest common dot-suffix of two hostnames, with a leading dot
 # (kb.example.com + kb-admin.example.com -> .example.com).
